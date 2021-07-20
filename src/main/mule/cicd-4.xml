@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1d3fa77b-0c0e-4fce-b76e-17442a22df30" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="7c709c65-ea00-4575-bc6c-a3ef10643e92" >
+		<db:mssql-connection host="${db.host}" instanceName="${db.instanceName}" port="${db.port}" user="${db.user}" password="${secure::db.password}" databaseName="${db.databaseName}" />
+	</db:config>
+<configuration-properties doc:name="Configuration properties" doc:id="1e574f1a-c85c-4946-9937-38ee50cf8d44" file="configuration\local.properties" />
+<secure-properties:config name="Secure_Properties_Config" doc:name="Secure_Properties_Config" doc:id="8ca3bcb4-f5ca-4393-be74-ddf88ad1b5c9" file="configuration\local-secured.properties" key="Mayo7882*#*Redu2009*#*">
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<flow name="cicd4Flow" doc:id="c83a649a-e93b-4301-bb33-bfb6ec1bbabe" >
+		<http:listener doc:name="Listener" doc:id="9c400bfa-dfef-444e-961b-cde796ca9b78" config-ref="HTTP_Listener_config" path="/cicd-4" />
+		<db:select doc:id="d31a227f-efe3-4fc7-a779-2e746d0f69b4" config-ref="Database_Config" doc:name="Select" >
+			<db:sql ><![CDATA[select * from [dbo].[CICD]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="19e9efb9-ff0d-45fd-815f-e52e727905ed" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
